@@ -1,0 +1,1248 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Sealed Character Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&family=IM+Fell+English:ital@0;1&display=swap">
+<style>
+/* Layout: a sealed envelope. One narrow column, ten folds (I to X) in a sticky strip, and a wax seal that holds the code at the end. */
+:root {
+  --paper: #eceef3; --card: #fafbfd; --ink: #1c1b28; --ink-2: #585669; --line: #d6d5df;
+  --wax: #7a1d33; --wax-ink: #fff6f8; --wax-soft: #f2e3e7; --brass: #7f6428; --good: #2b7650; --bad: #ad3127;
+  --display: "IM Fell English", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111018; --card: #1a1924; --ink: #ebe9f2; --ink-2: #a6a3b6; --line: #2e2c3c;
+    --wax: #d8657d; --wax-ink: #22080f; --wax-soft: #3a1a24; --brass: #cdae6b; --good: #58c08d; --bad: #ff8573; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111018; --card: #1a1924; --ink: #ebe9f2; --ink-2: #a6a3b6; --line: #2e2c3c;
+  --wax: #d8657d; --wax-ink: #22080f; --wax-soft: #3a1a24; --brass: #cdae6b; --good: #58c08d; --bad: #ff8573; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 16px/1.55 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--card); }
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 128px; }
+h1, h2, .display { font-family: var(--display); font-weight: 400; text-wrap: balance; }
+h1 { font-size: 2.35rem; line-height: 1.05; margin: 22px 0 10px; }
+h2 { font-size: 1.75rem; line-height: 1.1; margin: 18px 0 6px; }
+h3 { font-size: .76rem; text-transform: uppercase; letter-spacing: .16em; color: var(--ink-2); margin: 24px 0 8px; font-weight: 700; }
+p { margin: 0 0 10px; max-width: 62ch; }
+.muted { color: var(--ink-2); }
+.small { font-size: .88rem; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--wax); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--card); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; display: flex; align-items: center; gap: 10px; }
+.brand { font-family: var(--display); font-size: 1.15rem; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+.brand i { width: 12px; height: 12px; border-radius: 50%; background: var(--wax); display: inline-block; box-shadow: 0 0 0 3px var(--wax-soft); }
+.saved { margin-left: auto; font-size: .78rem; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.steps { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 10px; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
+.steps button { border: 0; background: var(--paper); border-radius: 6px; padding: 5px 0 3px; font-family: var(--display); font-size: .92rem; color: var(--ink-2); cursor: pointer; min-width: 0; }
+.steps button.done { color: var(--wax); }
+.steps button.on { background: var(--wax); color: var(--wax-ink); }
+.steps button:disabled { opacity: .35; cursor: default; }
+
+/* controls */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-top: 14px; }
+.field { display: grid; gap: 6px; margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label, .lbl { font-weight: 700; font-size: .92rem; }
+.hint { font-size: .84rem; color: var(--ink-2); }
+input[type=text], input[type=number], textarea, select { width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; min-width: 0; }
+textarea { min-height: 84px; resize: vertical; }
+input:focus, textarea:focus, select:focus { border-color: var(--wax); outline: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 140px; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 13px; cursor: pointer; font-size: .92rem; }
+.chip.on { background: var(--wax); border-color: var(--wax); color: var(--wax-ink); font-weight: 700; }
+.chip.veil { border-style: dashed; border-color: var(--wax); background: var(--wax-soft); }
+.chip.line { background: var(--wax); border-color: var(--wax); color: var(--wax-ink); }
+.chip .tag { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; margin-left: 6px; opacity: .85; }
+.btn { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 12px 16px; cursor: pointer; font-weight: 700; }
+.btn.primary { background: var(--wax); border-color: var(--wax); color: var(--wax-ink); }
+.btn.ghost { background: transparent; }
+.btn:disabled { opacity: .45; cursor: default; }
+.pick { display: grid; gap: 10px; }
+.opt { text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: var(--r); padding: 13px 14px; cursor: pointer; display: grid; gap: 3px; }
+.opt.on { border-color: var(--wax); box-shadow: inset 0 0 0 2px var(--wax); background: var(--wax-soft); }
+.opt .t { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.opt .n { font-family: var(--display); font-size: 1.25rem; line-height: 1.15; }
+.opt .b { font-family: var(--mono); font-size: .76rem; color: var(--brass); white-space: nowrap; }
+.opt .w { font-style: italic; font-size: .95rem; }
+.opt .d { font-size: .9rem; color: var(--ink-2); }
+.answers .opt { padding: 11px 14px; }
+.answers .opt .n { font-family: var(--body); font-size: 1rem; }
+.q { margin-top: 22px; }
+.q .qn { font-family: var(--display); font-size: 1.35rem; line-height: 1.2; margin: 0 0 10px; display: flex; gap: 10px; align-items: baseline; }
+.q .qn span { font-size: .95rem; color: var(--wax); }
+
+/* abilities */
+.abil { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.abil:last-child { border-bottom: 0; }
+.abil .nm b { display: block; }
+.abil .nm span { font-size: .82rem; color: var(--ink-2); }
+.abil .ctl { display: flex; align-items: center; gap: 8px; }
+.abil select { width: 76px; padding: 8px; }
+.stepper { display: flex; align-items: center; gap: 6px; }
+.stepper button { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font-size: 1.1rem; cursor: pointer; }
+.stepper output { min-width: 26px; text-align: center; font-family: var(--mono); font-weight: 600; }
+.mod { font-family: var(--mono); font-size: .85rem; color: var(--ink-2); min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+.budget { font-family: var(--mono); font-weight: 600; }
+.budget.over { color: var(--bad); }
+
+/* look */
+.sw { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sw button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.sw button.on { border-color: var(--wax); box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--wax); }
+.sw input[type=color] { width: 44px; height: 36px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 2px; }
+.sw .hex { font-family: var(--mono); font-size: .8rem; color: var(--ink-2); }
+input[type=range] { width: 100%; accent-color: var(--wax); }
+.height-read { font-family: var(--mono); font-weight: 600; }
+.ref { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ref img { width: 88px; height: 88px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.preview { display: flex; gap: 14px; align-items: center; }
+.preview .fig { width: 64px; height: 84px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); display: grid; place-items: center; flex: none; overflow: hidden; }
+.preview .fig svg { width: 48px; height: 64px; }
+
+/* the calling card */
+.card { position: relative; border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: 18px 18px 16px; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; }
+.card .fig { width: 72px; height: 92px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
+.card .fig img { width: 100%; height: 100%; object-fit: cover; }
+.card .fig svg { width: 52px; height: 70px; }
+.card .side { display: grid; justify-items: center; align-content: start; }
+.card .side .seal { margin-top: -18px; margin-left: 34px; }
+.card .name { font-family: var(--display); font-size: 1.6rem; line-height: 1.05; }
+.card .meta { color: var(--ink-2); font-size: .9rem; }
+.card .tagline { position: absolute; top: 10px; left: 18px; font-family: var(--mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .14em; color: var(--ink-2); }
+.card.example { padding-top: 32px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+.stat { background: var(--paper); border-radius: 8px; padding: 7px 4px; text-align: center; }
+.stat b { display: block; font-family: var(--mono); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-2); }
+@media (max-width: 380px) { .card { grid-template-columns: 1fr; } .card .side { display: none; } }
+
+/* wax seal */
+.seal { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-size: 1.35rem; color: var(--wax-ink);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--wax) 70%, white) 0, var(--wax) 45%, color-mix(in srgb, var(--wax) 75%, black) 100%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--wax) 35%, transparent), 0 2px 6px color-mix(in srgb, var(--ink) 30%, transparent); transform: rotate(-8deg); }
+.seal.big { width: 88px; height: 88px; font-size: 2.1rem; }
+.seal.unset { background: var(--paper); color: var(--ink-2); box-shadow: inset 0 0 0 2px var(--line); }
+.sealrow { display: flex; gap: 18px; align-items: center; margin: 10px 0 14px; padding-left: 8px; }
+.sealrow p { margin: 0; }
+
+/* code */
+.code { width: 100%; font-family: var(--mono); font-size: .76rem; word-break: break-all; min-height: 110px; background: var(--paper); }
+.note { border-left: 3px solid var(--wax); padding: 9px 12px; background: var(--wax-soft); border-radius: 0 8px 8px 0; font-size: .92rem; }
+.err { color: var(--bad); font-size: .9rem; }
+.ok { color: var(--good); font-size: .9rem; }
+ul.know { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+
+/* sheet view */
+.sheet-head { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 10px; }
+.sheet-head > div { min-width: 0; }
+.vitals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vital { background: var(--paper); border-radius: 10px; padding: 10px 6px; text-align: center; }
+.vital b { display: block; font-family: var(--mono); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.vital span { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+.abgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ab { background: var(--paper); border-radius: 10px; padding: 8px; text-align: center; }
+.ab .s { font-size: .72rem; letter-spacing: .14em; color: var(--ink-2); }
+.ab .m { font-family: var(--mono); font-size: 1.3rem; font-weight: 600; }
+.ab .v { font-family: var(--mono); font-size: .76rem; color: var(--ink-2); }
+.ab .v .sv.prof { color: var(--wax); font-weight: 600; }
+.li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: .95rem; }
+.li:last-child { border-bottom: 0; }
+.li .v { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.li .k { min-width: 0; }
+.li.prof .k::before { content: "\25CF"; color: var(--wax); margin-right: 6px; font-size: .7rem; }
+.feat { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.feat:last-child { border-bottom: 0; }
+.feat .h { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.feat .h b { font-size: 1rem; }
+.feat .lv { font-family: var(--mono); font-size: .72rem; color: var(--ink-2); white-space: nowrap; }
+.feat p { font-size: .92rem; color: var(--ink-2); margin: 3px 0 0; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.nav-in { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; display: flex; gap: 10px; align-items: center; }
+.nav-in .msg { flex: 1; font-size: .84rem; color: var(--ink-2); min-width: 0; }
+details.more { margin-top: 14px; }
+details.more summary { cursor: pointer; font-weight: 700; }
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><i aria-hidden="true"></i>Character sheet</div>
+    <span class="saved" id="savedNote"></span>
+  </div>
+  <nav class="steps" id="steps" aria-label="Steps"></nav>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<div class="nav" id="nav">
+  <div class="nav-in">
+    <button class="btn ghost" id="backBtn" type="button">Back</button>
+    <span class="msg" id="navMsg"></span>
+    <button class="btn primary" id="nextBtn" type="button">Next</button>
+  </div>
+</div>
+
+<script>
+// Stagehand rules: the half players are allowed to see.
+// Shared by the players' character sheet, the play-along site and the DM app.
+// Everything in this file is sent to players' phones, so keep it free of
+// anything about the story.
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.StagehandRules = api;
+})(typeof self !== 'undefined' ? self : globalThis, function () {
+  'use strict';
+
+  const ABILITIES = [
+    { id: 'str', name: 'Strength', short: 'STR', blurb: 'Lifting, climbing, hitting hard' },
+    { id: 'dex', name: 'Dexterity', short: 'DEX', blurb: 'Speed, balance, aim, sneaking' },
+    { id: 'con', name: 'Constitution', short: 'CON', blurb: 'Toughness and stamina; adds to your HP' },
+    { id: 'int', name: 'Intelligence', short: 'INT', blurb: 'Memory, logic, book learning' },
+    { id: 'wis', name: 'Wisdom', short: 'WIS', blurb: 'Noticing things, gut instinct, nerve' },
+    { id: 'cha', name: 'Charisma', short: 'CHA', blurb: 'Confidence, charm, presence' }
+  ];
+
+  const SKILLS = [
+    { id: 'acrobatics', name: 'Acrobatics', ability: 'dex' },
+    { id: 'animal', name: 'Animal Handling', ability: 'wis' },
+    { id: 'arcana', name: 'Arcana', ability: 'int' },
+    { id: 'athletics', name: 'Athletics', ability: 'str' },
+    { id: 'deception', name: 'Deception', ability: 'cha' },
+    { id: 'history', name: 'History', ability: 'int' },
+    { id: 'insight', name: 'Insight', ability: 'wis' },
+    { id: 'intimidation', name: 'Intimidation', ability: 'cha' },
+    { id: 'investigation', name: 'Investigation', ability: 'int' },
+    { id: 'medicine', name: 'Medicine', ability: 'wis' },
+    { id: 'nature', name: 'Nature', ability: 'int' },
+    { id: 'perception', name: 'Perception', ability: 'wis' },
+    { id: 'performance', name: 'Performance', ability: 'cha' },
+    { id: 'persuasion', name: 'Persuasion', ability: 'cha' },
+    { id: 'religion', name: 'Religion', ability: 'int' },
+    { id: 'sleight', name: 'Sleight of Hand', ability: 'dex' },
+    { id: 'stealth', name: 'Stealth', ability: 'dex' },
+    { id: 'survival', name: 'Survival', ability: 'wis' }
+  ];
+
+  const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
+  const POINT_BUY = { budget: 27, costs: { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 } };
+  const MAX_LEVEL = 5;
+
+  const BOOST = { name: 'Ability Boost', text: 'Add 2 to one ability score, or 1 to two of them (max 20).' };
+  const EXTRA_ATTACK = { name: 'Extra Attack', text: 'When you take the Attack action, attack twice.' };
+
+  // uses: { k: 'fixed', n } | { k: 'prof' } | { k: 'mod', ability, min } | { k: 'level', mult, plus }
+  // per: 'short' | 'long'
+  const PATHS = [
+    {
+      id: 'soldier', name: 'Soldier', who: 'Has stood in a line while the world came apart.',
+      about: 'You stand in front so everyone else can stand behind you. Steady, tough and very hard to knock down.',
+      hitDie: 10, armor: { kind: 'heavy', base: 16 }, shield: true, saves: ['str', 'con'],
+      skills: { count: 2, from: ['acrobatics', 'athletics', 'history', 'insight', 'intimidation', 'perception', 'survival'] },
+      suggested: { str: 15, con: 14, dex: 13, wis: 12, cha: 10, int: 8 },
+      choice: {
+        key: 'style', label: 'Fighting style', options: [
+          { id: 'guardian', name: 'Guardian', text: '+1 to your AC.' },
+          { id: 'duelist', name: 'Duelist', text: '+2 damage when you fight with a one-handed weapon.' },
+          { id: 'heavy', name: 'Heavy Hitter', text: 'With a two-handed weapon, reroll any 1 or 2 on your damage dice (keep the new roll).' },
+          { id: 'marksman', name: 'Marksman', text: '+2 to ranged attack rolls.' }
+        ]
+      },
+      features: [
+        { level: 1, name: 'Fighting Style', text: 'Your chosen style is always on.' },
+        { level: 1, name: 'Catch Your Breath', text: 'Bonus action: regain 1d10 + your level in HP.', uses: { k: 'fixed', n: 1 }, per: 'short' },
+        { level: 2, name: 'Battle Rush', text: 'On your turn, take one extra action.', uses: { k: 'fixed', n: 1 }, per: 'short' },
+        { level: 3, name: 'Deadly Edge', text: 'Your weapon attacks score a critical hit on a 19 or a 20.' },
+        { level: 4, ...BOOST },
+        { level: 5, ...EXTRA_ATTACK }
+      ]
+    },
+    {
+      id: 'rogue', name: 'Rogue', who: 'Notices everything. Nobody notices them.',
+      about: 'You get in, you get the thing, you get out. Locks, shadows and the perfect moment to strike are your whole trade.',
+      hitDie: 8, armor: { kind: 'light', base: 11 }, shield: false, saves: ['dex', 'int'],
+      skills: { count: 4, from: ['acrobatics', 'athletics', 'deception', 'insight', 'intimidation', 'investigation', 'perception', 'performance', 'persuasion', 'sleight', 'stealth'] },
+      suggested: { dex: 15, con: 14, wis: 13, cha: 12, int: 10, str: 8 },
+      expertise: 2,
+      features: [
+        { level: 1, name: 'Expert', text: 'Pick two of your skills. Double your proficiency bonus for them.' },
+        { level: 1, name: 'Sneak Strike', text: 'Once per turn, deal extra damage to a creature you hit if you had advantage, or if an ally is within 5 ft of it. Use a finesse or ranged weapon. +1d6 (2d6 at level 3, 3d6 at level 5).', scale: { 1: '1d6', 3: '2d6', 5: '3d6' } },
+        { level: 2, name: 'Quick Feet', text: 'Bonus action, every turn: Dash, Disengage or Hide.' },
+        { level: 3, name: 'Fast Hands', text: 'Bonus action: use an item, pick a lock, or lift something off a creature (your Sleight of Hand against its Perception).' },
+        { level: 4, ...BOOST },
+        { level: 5, name: 'Duck and Roll', text: 'Reaction: when an attack you can see hits you, take half the damage.' }
+      ]
+    },
+    {
+      id: 'huntsman', name: 'Huntsman', who: 'Has tracked wolves through snow and knows what a trap smells like.',
+      about: 'You read tracks, smell trouble before it arrives and never miss twice. Anything that hunts can be hunted.',
+      hitDie: 10, armor: { kind: 'medium', base: 13, dexMax: 2 }, shield: false, saves: ['str', 'dex'],
+      skills: { count: 3, from: ['animal', 'athletics', 'insight', 'investigation', 'nature', 'perception', 'stealth', 'survival'] },
+      suggested: { dex: 15, wis: 14, con: 13, str: 12, int: 10, cha: 8 },
+      features: [
+        { level: 1, name: 'Quarry', text: 'Bonus action: mark a creature you can see within 90 ft for 1 hour. Your weapon hits deal +1d6 damage to it, and you have advantage on checks to track or find it.', uses: { k: 'prof' }, per: 'long' },
+        { level: 1, name: 'Read the Signs', text: 'Advantage on Intelligence and Wisdom checks to recall facts about creatures or to track them.' },
+        { level: 2, name: 'Steady Aim', text: '+2 to ranged weapon attack rolls.' },
+        { level: 3, name: 'Volley', text: 'Action: make one ranged attack against every creature you choose in a 10-ft-radius circle within range.', uses: { k: 'fixed', n: 1 }, per: 'short' },
+        { level: 4, ...BOOST },
+        { level: 5, ...EXTRA_ATTACK }
+      ]
+    },
+    {
+      id: 'protector', name: 'Protector', who: 'The one people run to: nurse, governess, priest, bodyguard.',
+      about: 'You made a promise and you keep it. Your hands can heal, your blows land with conviction, and fear has a harder time with you.',
+      hitDie: 10, armor: { kind: 'heavy', base: 16 }, shield: true, saves: ['wis', 'cha'],
+      skills: { count: 2, from: ['athletics', 'insight', 'intimidation', 'medicine', 'persuasion', 'religion'] },
+      suggested: { str: 15, cha: 14, con: 13, wis: 12, dex: 10, int: 8 },
+      vow: true,
+      features: [
+        { level: 1, name: 'Healing Touch', text: 'A pool of healing equal to 5 × your level. Action: touch a creature and restore any amount of HP from the pool. Refills on a long rest.', pool: { k: 'level', mult: 5 }, per: 'long' },
+        { level: 1, name: 'Vow', text: 'When you act on the promise you live by, take advantage on one roll.', uses: { k: 'fixed', n: 1 }, per: 'long' },
+        { level: 2, name: 'Righteous Strike', text: 'When you hit with a melee weapon, deal +2d8 radiant damage.', uses: { k: 'prof' }, per: 'long' },
+        { level: 3, name: 'Steady Presence', text: "You and allies within 10 ft have advantage on saves against fear and can't be frightened." },
+        { level: 4, ...BOOST },
+        { level: 5, ...EXTRA_ATTACK }
+      ]
+    },
+    {
+      id: 'performer', name: 'Performer', who: 'Musician, dancer or actor whose voice can hold a room.',
+      about: 'The stage is wherever you are standing. Your voice keeps everyone going, and a well-placed note can drop an enemy to its knees.',
+      hitDie: 8, armor: { kind: 'light', base: 11 }, shield: false, saves: ['dex', 'cha'],
+      skills: { count: 3, from: 'any' },
+      suggested: { cha: 15, dex: 14, con: 13, wis: 12, int: 10, str: 8 },
+      power: { ability: 'cha', label: 'Song DC' },
+      points: { name: 'Song Points', formula: { k: 'level', mult: 1, plus: 1 }, per: 'long' },
+      workings: {
+        label: 'Songs', noun: 'song', free: ['sour'], pick: { 1: 2, 3: 3, 5: 4 }, list: [
+          { id: 'sour', name: 'Sour Note', cost: 0, level: 1, text: 'One creature within 60 ft makes a WIS save or takes 1d6 thunder damage and has disadvantage on its next attack (2d6 at level 5).' },
+          { id: 'heal', name: 'Healing Verse', cost: 1, level: 1, text: 'One creature within 60 ft regains 1d8 + your CHA modifier HP.' },
+          { id: 'rally', name: 'Rallying Chorus', cost: 1, level: 1, text: 'Up to three allies within 30 ft gain 1d6 + your CHA modifier temporary HP and steady their nerves.' },
+          { id: 'lullaby', name: 'Lullaby', cost: 2, level: 1, text: 'Up to two creatures within 30 ft make a WIS save or fall asleep for 1 minute (they wake if damaged or shaken).' },
+          { id: 'showstop', name: 'Showstopper', cost: 2, level: 1, text: "One creature within 30 ft makes a WIS save or is charmed until the end of your next turn: it can't attack you and stares at you, enthralled." },
+          { id: 'thunder', name: 'Thunderclap', cost: 2, level: 3, text: 'Every creature in a 15-ft cube next to you makes a CON save: 2d8 thunder damage and pushed 10 ft, or half damage and not pushed on a success.' }
+        ]
+      },
+      features: [
+        { level: 1, name: 'Encore', text: 'Bonus action: give an ally within 60 ft who can hear you an Encore die (d6, d8 at level 5). Within 10 minutes they can add it to one d20 roll.', uses: { k: 'mod', ability: 'cha', min: 1 }, per: 'long' },
+        { level: 1, name: 'Songs', text: 'You know Sour Note plus two more songs (three at level 3, four at level 5). Songs that cost points use Song Points: your level + 1, refilled on a long rest.' },
+        { level: 2, name: 'Jack of All Trades', text: "Add half your proficiency bonus (round down) to any check you aren't proficient in." },
+        { level: 2, name: 'Song of Rest', text: 'During a short rest, every ally who hears you regains an extra 1d6 HP and steadies their nerves.' },
+        { level: 3, name: 'Standing Ovation', text: 'Action: every ally who can hear you gains temporary HP equal to twice your level and steadies their nerves.', uses: { k: 'fixed', n: 1 }, per: 'long' },
+        { level: 4, ...BOOST },
+        { level: 5, name: 'Big Finish', text: 'Your Encore die becomes a d8 and Encore refills on a short rest. Sour Note deals 2d6.' }
+      ]
+    },
+    {
+      id: 'conjurer', name: 'Conjurer', who: 'Stage magician or spiritualist who makes people see what they want to see.',
+      about: 'You learned the tricks to fool an audience, and then found out some of them are not tricks at all. Illusions, disguises and bolts of raw force are yours to shape.',
+      hitDie: 6, armor: { kind: 'ward', base: 13 }, shield: false, saves: ['int', 'wis'],
+      skills: { count: 2, from: ['arcana', 'deception', 'history', 'insight', 'investigation', 'medicine', 'religion'] },
+      suggested: { int: 15, dex: 14, con: 13, wis: 12, cha: 10, str: 8 },
+      power: { ability: 'int', label: 'Trick DC' },
+      points: { name: 'Trick Points', formula: { k: 'level', mult: 2 }, per: 'long' },
+      workings: {
+        label: 'Tricks', noun: 'trick', all: true, list: [
+          { id: 'bolt', name: 'Hex Bolt', cost: 0, level: 1, text: 'Ranged trick attack (120 ft): 1d10 force damage (2d10 at level 5).' },
+          { id: 'light', name: 'Trick of the Light', cost: 0, level: 1, text: 'Create a sound or an image that fits in a 5-ft cube for 1 minute. A creature that studies it makes an Investigation check against your Trick DC to see through it.' },
+          { id: 'needles', name: 'Needles', cost: 1, level: 1, text: 'Three needles of force hit automatically for 1d4 + 1 each, split however you like among creatures within 120 ft.' },
+          { id: 'smoke', name: 'Smoke Shield', cost: 1, level: 1, text: 'Reaction when you are hit: +5 AC until the start of your next turn, including against that attack.' },
+          { id: 'face', name: 'Borrowed Face', cost: 1, level: 1, text: 'Look and sound like anyone of about your size for 1 hour.' },
+          { id: 'sleep', name: 'Sleep Powder', cost: 2, level: 1, text: 'Up to three creatures within 60 ft with 20 HP or fewer make a WIS save or fall asleep for 1 minute (they wake if damaged).' },
+          { id: 'step', name: 'Vanishing Step', cost: 2, level: 2, text: 'Bonus action: vanish and reappear up to 30 ft away in a spot you can see.' },
+          { id: 'mirror', name: 'Mirror Images', cost: 2, level: 3, text: 'Three illusory copies surround you for 1 minute. When something attacks you, roll a d20: on 11 or higher it hits a copy instead, which vanishes.' },
+          { id: 'vanish', name: 'Vanish', cost: 2, level: 3, text: 'Become invisible for up to 1 minute, until you attack or use a trick.' },
+          { id: 'blizzard', name: 'Black Blizzard', cost: 5, level: 5, text: 'A storm of black ice fills a 20-ft-radius sphere within 150 ft. Everything in it makes a DEX save: 6d6 cold damage, or half on a success.' }
+        ]
+      },
+      features: [
+        { level: 1, name: 'Tricks', text: 'You can use any trick on your list whose level you have reached. Tricks that cost points use Trick Points: 2 × your level, refilled on a long rest.' },
+        { level: 2, name: 'Second Sight', text: "You see through illusions, disguises and glamours within 30 ft. You know they're fake, and you see what's underneath." },
+        { level: 3, name: 'Deeper Tricks', text: 'Mirror Images and Vanish join your list.' },
+        { level: 4, ...BOOST },
+        { level: 5, name: 'Black Blizzard', text: 'Black Blizzard joins your list, and Hex Bolt deals 2d10.' }
+      ]
+    }
+  ];
+
+  const WEAPONS = [
+    { id: 'sabre', name: 'Sabre', damage: '1d8', type: 'slashing', props: ['Versatile: 1d10 with two hands'], versatile: '1d10' },
+    { id: 'rapier', name: 'Rapier', damage: '1d8', type: 'piercing', props: ['Finesse: use STR or DEX'], finesse: true },
+    { id: 'spear', name: 'Spear', damage: '1d8', type: 'piercing', props: ['Thrown 20/60 ft'] },
+    { id: 'knives', name: 'Twin knives', damage: '1d4', type: 'piercing', props: ['Finesse', 'Thrown 20/60 ft', 'Bonus action: attack with the second knife (no modifier on its damage)'], finesse: true, noShield: true },
+    { id: 'hammer', name: 'Hammer', damage: '1d8', type: 'bludgeoning', props: ['Versatile: 1d10 with two hands'], versatile: '1d10' },
+    { id: 'axe', name: 'Great axe', damage: '1d12', type: 'slashing', props: ['Two-handed'], twoHanded: true },
+    { id: 'bow', name: 'Bow', damage: '1d8', type: 'piercing', props: ['Range 150/600 ft', 'Two-handed'], ranged: true, twoHanded: true }
+  ];
+
+  // What a character does for a living. No mechanics.
+  const ROLES = ['Soldier', 'Nurse', 'Governess', 'Musician', 'Dancer', 'Actor', 'Stage magician', 'Servant', 'Cook', 'Doctor', 'Gamekeeper', 'Pickpocket', 'Seamstress', 'Coachman', 'Student', 'Priest', 'Journalist'];
+
+  // A small thing the character always carries.
+  const KEEPSAKES = ['Hatpin', 'Pocket watch', 'Walking stick', 'Locket', 'Sewing scissors', 'Pipe', 'Letter opener', 'Folding fan', 'Hair comb', 'Tuning fork', 'Lucky coin', 'Penknife'];
+
+  // Four strange questions. The option ids are deliberately meaningless: the
+  // scoring lives only in the DM's app.
+  const QUESTIONS = [
+    {
+      id: 'q1', text: 'When you were small, what did you love most?', options: [
+        { id: 'a', text: 'Hiding in small places nobody else could fit' },
+        { id: 'b', text: 'Spinning until the room tipped over' },
+        { id: 'c', text: 'Staying awake, listening to the house at night' },
+        { id: 'd', text: 'Dressing up as somebody else' },
+        { id: 'e', text: 'Marching, and anything with a drum' },
+        { id: 'f', text: 'One blanket I carried everywhere until it fell apart' },
+        { id: 'g', text: 'Jumping out at people' },
+        { id: 'h', text: 'The kitchen, and whoever let me lick the spoon' },
+        { id: 'i', text: 'A little light left on so I could fall asleep' },
+        { id: 'j', text: 'Staying outside in the cold long after everyone went in' }
+      ]
+    },
+    {
+      id: 'q2', text: 'When something frightens you, what do you do?', options: [
+        { id: 'a', text: 'Get between it and someone smaller' },
+        { id: 'b', text: "Keep moving. Never be where it's looking." },
+        { id: 'c', text: 'Go at it before it comes at me' },
+        { id: 'd', text: 'Hold on to someone until it passes' },
+        { id: 'e', text: 'Go very quiet and watch it' },
+        { id: 'f', text: "Laugh. I can't help it." },
+        { id: 'g', text: 'Go cold. Nothing reaches me.' },
+        { id: 'h', text: 'Talk to it. Make friends with it, if I can.' },
+        { id: 'i', text: 'Turn on every light in the house' },
+        { id: 'j', text: 'Make myself small and wait' }
+      ]
+    },
+    {
+      id: 'q3', text: 'Which sound would you miss most if you never heard it again?', options: [
+        { id: 'a', text: 'A drum, a long way off' },
+        { id: 'b', text: 'A tune that slows down right at the end' },
+        { id: 'c', text: 'A sudden bang, and then everyone laughing' },
+        { id: 'd', text: 'A rocking chair creaking in the next room' },
+        { id: 'e', text: 'A clock ticking in a dark house' },
+        { id: 'f', text: 'Applause' },
+        { id: 'g', text: 'The hush when snow is falling' },
+        { id: 'h', text: "An oven door, and someone saying “careful, it's hot”" },
+        { id: 'i', text: 'A match being struck' },
+        { id: 'j', text: 'Whispering under the covers after lights-out' }
+      ]
+    },
+    {
+      id: 'q4', text: 'Pick a word.', options: [
+        { id: 'a', text: 'Duty' }, { id: 'b', text: 'Grace' }, { id: 'c', text: 'Surprise' }, { id: 'd', text: 'Mended' },
+        { id: 'e', text: 'Vigil' }, { id: 'f', text: 'Mask' }, { id: 'g', text: 'Frost' }, { id: 'h', text: 'Home' },
+        { id: 'i', text: 'Hope' }, { id: 'j', text: 'Hidden' }
+      ]
+    }
+  ];
+
+  // Things a player may not want to meet in a game. A broad, ordinary list.
+  const COMFORT_TOPICS = [
+    'Spiders', 'Insects', 'Rats and mice', 'Snakes', 'Dogs and wolves', 'Blood', 'Gore and injury detail', 'Body horror',
+    'Needles', 'Dolls and puppets', 'Clowns', 'Masks', 'Drowning', 'Fire', 'Heights', 'Being trapped or buried', 'Darkness',
+    'Ghosts and possession', 'Harm to children', 'Harm to animals', 'Death of a loved one', 'Illness and disease',
+    'Food and eating', 'Losing control of your mind', 'Kidnapping', 'Torture', 'Sexual content'
+  ];
+
+  // ---------------------------------------------------------------- helpers
+  const mod = score => Math.floor(((score || 10) - 10) / 2);
+  const profBonus = level => (level >= 5 ? 3 : 2);
+  const find = (list, id) => list.find(x => x.id === id) || null;
+  const sign = v => (v >= 0 ? '+' + v : '−' + Math.abs(v));
+
+  // `extra` is an optional { bonus: [ability +2, ability +1] } granted during play.
+  function finalScores(ch, extra) {
+    const s = {};
+    for (const a of ABILITIES) s[a.id] = (ch.abilities && ch.abilities[a.id]) || 10;
+    if (extra && extra.bonus) { s[extra.bonus[0]] += 2; s[extra.bonus[1]] += 1; }
+    for (const [k, v] of Object.entries(ch.boosts || {})) if (s[k] != null) s[k] += v;
+    for (const a of ABILITIES) s[a.id] = Math.min(20, s[a.id]);
+    return s;
+  }
+
+  function usesCount(u, ch, scores) {
+    if (!u) return 0;
+    const lvl = (ch && ch.level) || 1;
+    if (u.k === 'fixed') return u.n;
+    if (u.k === 'prof') return profBonus(lvl);
+    if (u.k === 'mod') return Math.max(u.min != null ? u.min : 0, mod(scores ? scores[u.ability] : 10));
+    if (u.k === 'level') return lvl * (u.mult || 1) + (u.plus || 0);
+    return 0;
+  }
+
+  function songsAllowed(level) { return level >= 5 ? 4 : level >= 3 ? 3 : 2; }
+
+  function derive(ch, extra) {
+    const level = Math.max(1, Math.min(MAX_LEVEL, ch.level || 1));
+    const path = find(PATHS, ch.path) || PATHS[0];
+    const scores = finalScores(ch, extra);
+    const m = {}; for (const a of ABILITIES) m[a.id] = mod(scores[a.id]);
+    const prof = profBonus(level);
+    const weapon = find(WEAPONS, ch.weapon && ch.weapon.type) || WEAPONS[0];
+    const shield = !!(path.shield && ch.weapon && ch.weapon.shield !== false && !weapon.twoHanded && !weapon.noShield);
+    const ar = path.armor;
+    let ac = ar.kind === 'heavy' ? ar.base : ar.kind === 'medium' ? ar.base + Math.min(ar.dexMax != null ? ar.dexMax : 2, m.dex) : ar.base + m.dex;
+    if (shield) ac += 2;
+    if (path.id === 'soldier' && ch.choice === 'guardian') ac += 1;
+    const perLevel = Math.max(1, Math.floor(path.hitDie / 2) + 1 + m.con);
+    const hp = Math.max(1, path.hitDie + m.con) + (level - 1) * perLevel;
+    const profSet = new Set(ch.skills || []), expSet = new Set(ch.expertise || []);
+    const skillMods = {};
+    for (const s of SKILLS) {
+      let v = m[s.ability];
+      if (profSet.has(s.id) && expSet.has(s.id)) v += prof * 2;
+      else if (profSet.has(s.id)) v += prof;
+      else if (path.id === 'performer' && level >= 2) v += Math.floor(prof / 2);
+      skillMods[s.id] = v;
+    }
+    const saveMods = {};
+    for (const a of ABILITIES) saveMods[a.id] = m[a.id] + (path.saves.includes(a.id) ? prof : 0);
+    const atkAbility = weapon.ranged ? 'dex' : weapon.finesse ? (m.dex >= m.str ? 'dex' : 'str') : 'str';
+    let attack = m[atkAbility] + prof;
+    if (weapon.ranged && path.id === 'huntsman' && level >= 2) attack += 2;
+    if (weapon.ranged && path.id === 'soldier' && ch.choice === 'marksman') attack += 2;
+    let dmgBonus = m[atkAbility];
+    if (path.id === 'soldier' && ch.choice === 'duelist' && !weapon.twoHanded && !weapon.ranged) dmgBonus += 2;
+    const giftAbility = extra && extra.bonus ? extra.bonus[0] : null;
+    const powerAbility = path.power ? path.power.ability : null;
+    return {
+      level, path, scores, mods: m, prof, ac, hp, speed: 30, hitDice: `${level}d${path.hitDie}`,
+      initiative: m.dex, passivePerception: 10 + skillMods.perception,
+      skillMods, saveMods, weapon, shield,
+      attack: { bonus: attack, ability: atkAbility, damage: `${weapon.damage}${dmgBonus ? (dmgBonus > 0 ? '+' : '−') + Math.abs(dmgBonus) : ''} ${weapon.type}`, dmgBonus },
+      giftDC: giftAbility ? 8 + prof + m[giftAbility] : null,
+      giftAttack: giftAbility ? prof + m[giftAbility] : null,
+      powerDC: powerAbility ? 8 + prof + m[powerAbility] : null,
+      powerAttack: powerAbility ? prof + m[powerAbility] : null,
+      points: path.points ? { name: path.points.name, max: usesCount(path.points.formula, { level }, scores), per: path.points.per } : null,
+      songsAllowed: path.id === 'performer' ? songsAllowed(level) : 0
+    };
+  }
+
+  // Turn the text of a roll heading ("Wisdom (Perception)", "Dexterity save",
+  // "Nerve save", "Initiative") into a modifier for one character.
+  function checkModifier(ch, check, extra) {
+    const d = derive(ch, extra);
+    const text = String(check || '').toLowerCase();
+    if (/\bnerve\b/.test(text)) return { mod: d.saveMods.wis, label: 'Nerve save (WIS)', kind: 'save', ability: 'wis' };
+    const skill = SKILLS.find(s => text.includes(s.name.toLowerCase()));
+    const ability = ABILITIES.find(a => text.includes(a.name.toLowerCase()) || new RegExp('\\b' + a.short.toLowerCase() + '\\b').test(text));
+    if (/\bsav(e|es|ing)\b/.test(text) && ability) return { mod: d.saveMods[ability.id], label: ability.name + ' save', kind: 'save', ability: ability.id };
+    if (skill) return { mod: d.skillMods[skill.id], label: (ability ? ability.name + ' ' : '') + '(' + skill.name + ')', kind: 'skill', skill: skill.id, ability: skill.ability };
+    if (/initiative/.test(text)) return { mod: d.initiative, label: 'Initiative', kind: 'initiative', ability: 'dex' };
+    if (/attack/.test(text)) return { mod: d.attack.bonus, label: 'Attack', kind: 'attack' };
+    if (ability) return { mod: d.mods[ability.id], label: ability.name, kind: 'ability', ability: ability.id };
+    return { mod: 0, label: 'd20', kind: 'flat' };
+  }
+
+  // A blank character, as the sheet and the app both expect it.
+  function blankCharacter() {
+    return {
+      kind: 'stagehand-character', v: 1, id: 'c' + Math.random().toString(36).slice(2, 10),
+      player: '', name: '', pronouns: '', age: '', role: '',
+      path: null, level: 1,
+      abilityMethod: 'array', abilities: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
+      skills: [], expertise: [], choice: null, songs: [], vow: '', boosts: {},
+      weapon: { type: null, shield: true, keepsake: '', look: '' },
+      answers: { dm: false, q1: null, q2: null, q3: null, q4: null },
+      look: {
+        heightCm: 170, build: '', skin: '', undertone: '', hairColor: '', hairLength: '', hairTexture: '', hairStyle: '',
+        eyeColor: '', facialHair: '', glasses: false, marks: '', outfit: '', outfitColors: ['#2c2a3a', '#7d2135', '#d8d3c8'],
+        accessories: '', shoes: '', movement: [], voice: '', notes: '', ref: null
+      },
+      story: { from: '', want: '', fear: '', dieFor: '', worst: '', secret: '', extra: '' },
+      comfort: { lines: [], veils: [], notes: '', anonymous: true },
+      updated: null
+    };
+  }
+
+  // Fill in anything missing from an older or partial character.
+  function normalize(c) {
+    const b = blankCharacter();
+    const out = Object.assign(b, c || {});
+    for (const k of ['weapon', 'answers', 'look', 'story', 'comfort']) out[k] = Object.assign(blankCharacter()[k], (c && c[k]) || {});
+    out.abilities = Object.assign({ str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }, (c && c.abilities) || {});
+    for (const k of ['skills', 'expertise', 'songs']) if (!Array.isArray(out[k])) out[k] = [];
+    if (!Array.isArray(out.look.movement)) out.look.movement = [];
+    if (!Array.isArray(out.look.outfitColors)) out.look.outfitColors = b.look.outfitColors;
+    if (!Array.isArray(out.comfort.lines)) out.comfort.lines = [];
+    if (!Array.isArray(out.comfort.veils)) out.comfort.veils = [];
+    out.kind = 'stagehand-character';
+    return out;
+  }
+
+  // What still needs doing before a character is playable. Empty = ready.
+  function missing(ch) {
+    const out = [];
+    const p = find(PATHS, ch.path);
+    if (!String(ch.name || '').trim() || !String(ch.player || '').trim()) out.push('you');
+    if (!p) out.push('path');
+    const vals = ABILITIES.map(a => (ch.abilities || {})[a.id] || 0);
+    const arrayOk = vals.every(v => v > 0) && [...vals].sort((a, b) => b - a).join() === STANDARD_ARRAY.join();
+    const spent = vals.reduce((s, v) => s + (POINT_BUY.costs[v] != null ? POINT_BUY.costs[v] : 99), 0);
+    const buyOk = vals.every(v => v >= 8 && v <= 15) && spent <= POINT_BUY.budget;
+    if (!(ch.abilityMethod === 'pointbuy' ? buyOk : arrayOk)) out.push('abilities');
+    if (p) {
+      const sk = ch.skills || [];
+      let ok = sk.length === p.skills.count;
+      if (p.expertise && (ch.expertise || []).length !== p.expertise) ok = false;
+      if (p.choice && !ch.choice) ok = false;
+      if (p.id === 'performer' && (ch.songs || []).length !== songsAllowed(ch.level || 1)) ok = false;
+      if (!ok) out.push('skills');
+    } else out.push('skills');
+    if (!ch.weapon || !ch.weapon.type) out.push('weapon');
+    const a = ch.answers || {};
+    if (!a.dm && !(a.q1 && a.q2 && a.q3 && a.q4)) out.push('questions');
+    return out;
+  }
+
+  return {
+    ABILITIES, SKILLS, STANDARD_ARRAY, POINT_BUY, MAX_LEVEL, PATHS, WEAPONS, ROLES, KEEPSAKES, QUESTIONS, COMFORT_TOPICS,
+    mod, profBonus, sign, find, finalScores, usesCount, songsAllowed, derive, checkModifier, blankCharacter, normalize, missing
+  };
+});
+
+</script>
+<script>
+// Character codes: a whole character squeezed into one line of text a player
+// can paste into a message. "SH1." + base64url(deflate-raw(JSON)), or "SH0." +
+// base64url(JSON) where the browser has no compression. The reference picture
+// is left out of codes (it only travels in the saved file).
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.StagehandCode = api;
+})(typeof self !== 'undefined' ? self : globalThis, function () {
+  'use strict';
+  const KIND = 'stagehand-character';
+  const PATTERN = /SH([01])\.([A-Za-z0-9_-]+)/;
+  const zlib = (typeof process !== 'undefined' && process.versions && process.versions.node && typeof require === 'function') ? require('zlib') : null;
+
+  function toB64url(bytes) {
+    let b64;
+    if (typeof Buffer !== 'undefined') b64 = Buffer.from(bytes).toString('base64');
+    else { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); b64 = btoa(s); }
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function fromB64url(str) {
+    const b64 = str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4);
+    if (typeof Buffer !== 'undefined') return new Uint8Array(Buffer.from(b64, 'base64'));
+    const s = atob(b64); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b;
+  }
+  const utf8 = s => (typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(s) : new Uint8Array(Buffer.from(s, 'utf8')));
+  const fromUtf8 = b => (typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(b) : Buffer.from(b).toString('utf8'));
+
+  function strip(c) {
+    const copy = JSON.parse(JSON.stringify(c));
+    if (copy.look) copy.look.ref = null;
+    delete copy.play;
+    return copy;
+  }
+
+  async function deflate(bytes) {
+    if (zlib) return new Uint8Array(zlib.deflateRawSync(Buffer.from(bytes), { level: 9 }));
+    const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  async function inflate(bytes) {
+    if (zlib) return new Uint8Array(zlib.inflateRawSync(Buffer.from(bytes)));
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+
+  async function encode(c) {
+    const json = JSON.stringify(strip(c));
+    try { return 'SH1.' + toB64url(await deflate(utf8(json))); }
+    catch (e) { return 'SH0.' + toB64url(utf8(json)); }
+  }
+
+  async function decode(code) {
+    const m = PATTERN.exec(String(code || '').replace(/\s+/g, ''));
+    if (!m) throw new Error('no-code');
+    const bytes = fromB64url(m[2]);
+    const json = m[1] === '1' ? fromUtf8(await inflate(bytes)) : fromUtf8(bytes);
+    const c = JSON.parse(json);
+    if (!c || c.kind !== KIND) throw new Error('wrong-kind');
+    return c;
+  }
+
+  // Accepts a code, a saved .json file's text, or a message with a code in it.
+  async function readAny(text) {
+    const t = String(text || '').trim();
+    if (t.startsWith('{')) {
+      const c = JSON.parse(t);
+      if (!c || c.kind !== KIND) throw new Error('wrong-kind');
+      return c;
+    }
+    return decode(t);
+  }
+
+  return { KIND, PATTERN, encode, decode, readAny, strip, toB64url, fromB64url };
+});
+
+</script>
+<script>
+(function () {
+  'use strict';
+  const R = window.StagehandRules, Code = window.StagehandCode;
+  const STORE = 'stagehand-sheet-v1';
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+  const STEPS = ['Welcome', 'You', 'Path', 'Abilities', 'Skills', 'Weapon', 'Questions', 'Look', 'Story', 'Limits', 'Seal'];
+  const LAST = STEPS.length - 1;
+  const REQUIRED = { 1: 'you', 2: 'path', 3: 'abilities', 4: 'skills', 5: 'weapon', 6: 'questions' };
+  const $ = s => document.querySelector(s);
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v === null || v === undefined || v === false) continue;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else if (k === 'html') n.innerHTML = v;
+      else n.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) n.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    return n;
+  };
+  const sign = R.sign;
+  const ab = id => R.ABILITIES.find(a => a.id === id);
+  const sk = id => R.SKILLS.find(s => s.id === id);
+  const pathOf = () => R.find(R.PATHS, ch.path);
+
+  // ------------------------------------------------------------ state
+  let ch = R.blankCharacter(), step = 0, mode = 'build', maxStep = 0;
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      ch = R.normalize(s.ch); step = Math.min(LAST, s.step || 0); mode = s.mode || 'build'; maxStep = Math.max(step, s.maxStep || 0);
+    } catch (e) { /* storage blocked or damaged: start fresh */ }
+  }
+  let saveTimer;
+  function save() {
+    ch.updated = new Date().toISOString();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(STORE, JSON.stringify({ ch, step, mode, maxStep })); $('#savedNote').textContent = 'Saved on this device'; }
+      catch (e) { $('#savedNote').textContent = 'Not saved on this device. Keep your code.'; }
+    }, 250);
+  }
+
+  // ------------------------------------------------------------ validation
+  const missing = () => R.missing(ch);
+  const stepValid = i => !REQUIRED[i] || !missing().includes(REQUIRED[i]);
+  const allValid = () => missing().length === 0;
+  function pointsSpent() { return Object.values(ch.abilities).reduce((s, v) => s + (R.POINT_BUY.costs[v] != null ? R.POINT_BUY.costs[v] : 0), 0); }
+  function hintFor(i) {
+    const p = pathOf();
+    return ({
+      1: 'Add your name and your character’s name.',
+      2: 'Pick a path.',
+      3: ch.abilityMethod === 'array' ? 'Use each number once.' : `Spend up to ${R.POINT_BUY.budget} points.`,
+      4: p ? `Pick ${p.skills.count} skills${p.expertise ? ', then 2 to be expert in' : ''}${p.choice ? ', and a fighting style' : ''}${p.id === 'performer' ? ', and 2 songs' : ''}.` : 'Pick a path first.',
+      5: 'Pick a weapon.',
+      6: 'Answer all four, or let the DM choose.'
+    })[i] || '';
+  }
+
+  // ------------------------------------------------------------ chrome
+  function renderSteps() {
+    const nav = $('#steps');
+    nav.hidden = mode !== 'build' || step === 0;
+    nav.innerHTML = '';
+    for (let i = 1; i <= LAST; i++) {
+      nav.append(el('button', {
+        type: 'button', title: STEPS[i], 'aria-label': `Step ${i}: ${STEPS[i]}`, 'aria-current': i === step ? 'step' : null,
+        class: (i === step ? 'on ' : '') + (i <= maxStep && stepValid(i) ? 'done' : ''),
+        disabled: i > maxStep + 1 || null, onclick: () => go(i)
+      }, ROMAN[i - 1]));
+    }
+  }
+  function renderNav() {
+    const back = $('#backBtn'), next = $('#nextBtn'), msg = $('#navMsg');
+    $('#nav').hidden = mode !== 'build';
+    back.hidden = step === 0;
+    if (step === 0) { next.textContent = 'Begin'; next.disabled = false; msg.textContent = ''; return; }
+    if (step === LAST) { next.textContent = 'My sheet'; next.disabled = !allValid(); msg.textContent = allValid() ? '' : 'A few required steps are unfinished.'; return; }
+    next.textContent = 'Next';
+    next.disabled = !stepValid(step);
+    msg.textContent = stepValid(step) ? `${STEPS[step]} · ${ROMAN[step - 1]} of X${REQUIRED[step] ? '' : ' · optional'}` : hintFor(step);
+  }
+  function go(i) {
+    step = Math.max(0, Math.min(LAST, i));
+    maxStep = Math.max(maxStep, step);
+    save(); render(); window.scrollTo({ top: 0 });
+  }
+  $('#backBtn').onclick = () => go(step - 1);
+  $('#nextBtn').onclick = () => {
+    if (step === LAST) { mode = 'sheet'; save(); render(); window.scrollTo({ top: 0 }); return; }
+    go(step + 1);
+  };
+
+  // ------------------------------------------------------------ pieces
+  const field = (label, input, hint) => el('div', { class: 'field' }, el('label', { for: input.id, text: label }), input, hint ? el('div', { class: 'hint', text: hint }) : null);
+  function textInput(id, value, onInput, attrs = {}) {
+    return el('input', Object.assign({ type: 'text', id, value: value || '', oninput: e => { onInput(e.target.value); save(); renderNav(); renderSteps(); } }, attrs));
+  }
+  function area(id, value, onInput, placeholder) {
+    const t = el('textarea', { id, placeholder: placeholder || '', oninput: e => { onInput(e.target.value); save(); } });
+    t.value = value || '';
+    return t;
+  }
+  function chipGroup(id, options, isOn, onPick) {
+    const g = el('div', { class: 'chips', id, role: 'group' });
+    options.forEach(o => {
+      const label = typeof o === 'string' ? o : o.label;
+      const key = typeof o === 'string' ? o : o.id;
+      g.append(el('button', { type: 'button', class: 'chip' + (isOn(key) ? ' on' : ''), 'aria-pressed': isOn(key) ? 'true' : 'false', text: label, onclick: () => { onPick(key); save(); render(); } }));
+    });
+    return g;
+  }
+  function swatches(id, list, value, onPick) {
+    const w = el('div', { class: 'sw', id });
+    list.forEach(c => w.append(el('button', { type: 'button', class: c.toLowerCase() === (value || '').toLowerCase() ? 'on' : '', style: `background:${c}`, 'aria-label': c, onclick: () => { onPick(c); save(); render(); } })));
+    const custom = el('input', { type: 'color', id: id + '-custom', value: /^#[0-9a-f]{6}$/i.test(value || '') ? value : '#888888', 'aria-label': 'Pick any color' });
+    custom.addEventListener('change', e => { onPick(e.target.value); save(); render(); });
+    w.append(custom, el('span', { class: 'hex', text: value ? value.toUpperCase() : 'not set' }));
+    return w;
+  }
+  const initials = c => (String(c.name || '').trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
+  const seal = (c, big) => el('div', { class: 'seal' + (big ? ' big' : '') + (c.name ? '' : ' unset'), 'aria-hidden': 'true', text: initials(c) });
+
+  function figure(c) {
+    const skin = c.look.skin || '#c69472', hair = c.look.hairColor || '#2a2420', coat = (c.look.outfitColors && c.look.outfitColors[0]) || '#2c2a3a';
+    const short = /Shaved|Buzzed/.test(c.look.hairLength);
+    const long = /Shoulder|Long|Very long/.test(c.look.hairLength);
+    const hairPath = short ? 'M15 23c0-8 5-12 12-12s12 4 12 12c-3-4-7-6-12-6s-9 2-12 6z' : 'M14 25c0-9 6-14 13-14s13 5 13 14c-3-5-7-7-13-7s-10 2-13 7z';
+    const longHair = long ? `<path d="M13 25c-1 10 0 18 4 22l3-20zM41 25c1 10 0 18-4 22l-3-20z" fill="${hair}"/>` : '';
+    return `<svg viewBox="0 0 54 70" aria-hidden="true">${longHair}<path d="M8 70c0-14 8-22 19-22s19 8 19 22z" fill="${coat}"/><circle cx="27" cy="26" r="13" fill="${skin}"/><path d="${hairPath}" fill="${hair}"/>${c.look.glasses ? '<g fill="none" stroke="#111" stroke-width="1.4"><circle cx="22" cy="27" r="3.2"/><circle cx="32" cy="27" r="3.2"/><path d="M25.2 27h1.6"/></g>' : ''}</svg>`;
+  }
+
+  function card(c, example) {
+    const p = R.find(R.PATHS, c.path);
+    const d = R.derive(c, null);
+    const fig = el('div', { class: 'fig' });
+    if (c.look.ref) fig.append(el('img', { src: c.look.ref, alt: '' })); else fig.innerHTML = figure(c);
+    const info = el('div', { style: 'min-width:0' },
+      el('div', { class: 'name', text: c.name || 'Your name here' }),
+      el('div', { class: 'meta', text: [c.pronouns, c.role, p ? p.name : null].filter(Boolean).join(' · ') || 'No path yet' }));
+    if (p) info.append(el('div', { class: 'stats' },
+      el('div', { class: 'stat' }, el('b', { text: d.hp }), el('span', { text: 'HP' })),
+      el('div', { class: 'stat' }, el('b', { text: d.ac }), el('span', { text: 'AC' })),
+      el('div', { class: 'stat' }, el('b', { text: sign(d.initiative) }), el('span', { text: 'Init' })),
+      el('div', { class: 'stat' }, el('b', { text: sign(d.attack.bonus) }), el('span', { text: 'Attack' }))));
+    return el('div', { class: 'card' + (example ? ' example' : '') }, example ? el('span', { class: 'tagline', text: 'Example' }) : null, el('div', { class: 'side' }, fig, seal(c)), info);
+  }
+
+  // ------------------------------------------------------------ steps
+  const views = {};
+
+  views[0] = () => {
+    const ex = R.normalize({ name: 'Ada Linden', pronouns: 'she/her', role: 'Nurse', path: 'protector', abilities: { str: 15, cha: 14, con: 13, wis: 12, dex: 10, int: 8 }, weapon: { type: 'sabre', shield: true } });
+    ex.look.skin = '#a8704a'; ex.look.hairColor = '#151214'; ex.look.hairLength = 'Long'; ex.look.outfitColors = ['#3b4a5e', '#d8d3c8', '#7d2135'];
+    return [
+      el('h1', { text: 'Who will you be?' }),
+      el('p', { text: 'Build your character here before the first session. It takes about twenty minutes, and nothing you write is shown to the other players.' }),
+      el('p', { class: 'muted', text: 'When you finish, you seal it all into one short code and text it to your DM. That puts your character in the game before you sit down.' }),
+      el('div', { class: 'panel' }, card(ex, true)),
+      el('h3', { text: 'What you need to know' }),
+      el('ul', { class: 'know' },
+        el('li', { text: 'Your character lives long ago, in a world with no cars, no telephones and no electric light.' }),
+        el('li', { text: 'Rolls work like D&D 5e: roll a d20, add your bonus, and try to beat a number.' }),
+        el('li', { text: 'Some of the questions will seem strange. Answer them anyway, with your first instinct.' }),
+        el('li', { text: 'That is all you get to know for now.' }))
+    ];
+  };
+
+  views[1] = () => [
+    el('h2', { text: 'Who are you?' }),
+    el('p', { class: 'muted', text: 'Your own name, so the DM knows whose sheet this is, and your character’s.' }),
+    el('div', { class: 'panel' },
+      field('Your name', textInput('player', ch.player, v => (ch.player = v), { autocomplete: 'given-name', placeholder: 'Your real name' })),
+      field('Character name', textInput('cname', ch.name, v => (ch.name = v), { placeholder: 'e.g. Ada Linden' })),
+      el('div', { class: 'row' },
+        field('Pronouns', textInput('pronouns', ch.pronouns, v => (ch.pronouns = v), { placeholder: 'she/her, he/him, they/them…' })),
+        field('Age', el('input', { type: 'number', id: 'age', min: '14', max: '99', inputmode: 'numeric', placeholder: 'e.g. 32', value: ch.age, oninput: e => { ch.age = e.target.value ? +e.target.value : ''; save(); } })))),
+    el('div', { class: 'panel' },
+      el('div', { class: 'field' },
+        el('div', { class: 'lbl', text: 'What do you do?' }),
+        el('div', { class: 'hint', text: 'Your trade, or your place in the world. Pick one or write your own.' }),
+        chipGroup('role', R.ROLES, k => ch.role === k, k => { ch.role = ch.role === k ? '' : k; }),
+        textInput('roleCustom', R.ROLES.includes(ch.role) ? '' : ch.role, v => (ch.role = v), { placeholder: 'Something else…', 'aria-label': 'Another trade' })))
+  ];
+
+  views[2] = () => {
+    const wrap = el('div', { class: 'pick', role: 'radiogroup', 'aria-label': 'Path' });
+    for (const p of R.PATHS) {
+      const armor = p.armor.kind === 'heavy' ? `AC ${p.armor.base}${p.shield ? ' (18 with shield)' : ''}` : p.armor.kind === 'medium' ? `AC ${p.armor.base} + DEX (max 2)` : `AC ${p.armor.base} + DEX`;
+      wrap.append(el('button', {
+        type: 'button', class: 'opt' + (ch.path === p.id ? ' on' : ''), role: 'radio', 'aria-checked': ch.path === p.id ? 'true' : 'false',
+        onclick: () => { if (ch.path !== p.id) { ch.path = p.id; ch.skills = []; ch.expertise = []; ch.choice = null; ch.songs = []; } save(); render(); }
+      },
+        el('div', { class: 't' }, el('span', { class: 'n', text: p.name }), el('span', { class: 'b', text: `d${p.hitDie} · ${armor}` })),
+        el('div', { class: 'w', text: p.who }),
+        el('div', { class: 'd', text: p.about })));
+    }
+    return [el('h2', { text: 'How you handle trouble' }), el('p', { class: 'muted', text: 'Your path decides how you fight and what you’re good at.' }), wrap];
+  };
+
+  views[3] = () => {
+    const p = pathOf();
+    const method = chipGroup('method', [{ id: 'array', label: 'Standard numbers' }, { id: 'pointbuy', label: 'Point buy' }], k => ch.abilityMethod === k, k => {
+      if (ch.abilityMethod !== k) { ch.abilityMethod = k; ch.abilities = k === 'pointbuy' ? { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 } : { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }; }
+    });
+    const list = el('div', { class: 'panel' });
+    for (const a of R.ABILITIES) {
+      const v = ch.abilities[a.id] || 0;
+      let ctl;
+      if (ch.abilityMethod === 'array') {
+        const sel = el('select', { id: 'ab-' + a.id, 'aria-label': a.name });
+        sel.append(el('option', { value: '0', text: '—' }));
+        const pool = [...R.STANDARD_ARRAY];
+        Object.entries(ch.abilities).filter(([k, x]) => k !== a.id && x > 0).forEach(([, x]) => { const i = pool.indexOf(x); if (i >= 0) pool.splice(i, 1); });
+        R.STANDARD_ARRAY.forEach(n => {
+          const o = el('option', { value: String(n), text: String(n) });
+          if (!pool.includes(n) && v !== n) o.disabled = true;
+          if (v === n) o.selected = true;
+          sel.append(o);
+        });
+        sel.onchange = e => { ch.abilities[a.id] = +e.target.value; save(); render(); };
+        ctl = sel;
+      } else {
+        ctl = el('div', { class: 'stepper' },
+          el('button', { type: 'button', 'aria-label': 'Lower ' + a.name, onclick: () => { if (v > 8) { ch.abilities[a.id] = v - 1; save(); render(); } } }, '−'),
+          el('output', { text: v }),
+          el('button', { type: 'button', 'aria-label': 'Raise ' + a.name, onclick: () => { const nv = v + 1; if (nv <= 15 && pointsSpent() - (R.POINT_BUY.costs[v] || 0) + R.POINT_BUY.costs[nv] <= R.POINT_BUY.budget) { ch.abilities[a.id] = nv; save(); render(); } } }, '+'));
+      }
+      list.append(el('div', { class: 'abil' },
+        el('div', { class: 'nm' }, el('b', { text: a.name }), el('span', { text: a.blurb })),
+        el('div', { class: 'ctl' }, ctl, el('span', { class: 'mod', text: v ? sign(R.mod(v)) : '' }))));
+    }
+    const top = [el('h2', { text: 'Abilities' }), el('p', { class: 'muted', text: 'Six numbers for what comes naturally to you. Higher is better; the bonus beside each is what you add to rolls.' }), method];
+    if (ch.abilityMethod === 'pointbuy') { const spent = pointsSpent(); top.push(el('p', { class: 'small', style: 'margin-top:10px' }, 'Points spent: ', el('span', { class: 'budget' + (spent > R.POINT_BUY.budget ? ' over' : ''), text: `${spent} / ${R.POINT_BUY.budget}` }))); }
+    if (p) top.push(el('div', { class: 'row', style: 'margin-top:12px' }, el('button', { type: 'button', class: 'btn', onclick: () => { ch.abilityMethod = 'array'; ch.abilities = { ...p.suggested }; save(); render(); } }, `Use the ${p.name} layout`)));
+    return [...top, list];
+  };
+
+  views[4] = () => {
+    const p = pathOf();
+    if (!p) return [el('h2', { text: 'Skills' }), el('p', { text: 'Pick a path first.' })];
+    const from = p.skills.from === 'any' ? R.SKILLS.map(s => s.id) : p.skills.from;
+    const out = [el('h2', { text: 'Skills' }), el('p', { class: 'muted', text: `Pick ${p.skills.count}. You add your proficiency bonus (+2) to rolls with these.` })];
+    out.push(el('div', { class: 'panel' }, chipGroup('skills', from.map(id => ({ id, label: `${sk(id).name} (${ab(sk(id).ability).short})` })), k => ch.skills.includes(k), k => {
+      if (ch.skills.includes(k)) { ch.skills = ch.skills.filter(x => x !== k); ch.expertise = ch.expertise.filter(x => x !== k); }
+      else if (ch.skills.length < p.skills.count) ch.skills.push(k);
+    }), el('p', { class: 'small muted', style: 'margin:10px 0 0', text: `${ch.skills.length} of ${p.skills.count} picked` })));
+    if (p.expertise) {
+      out.push(el('h3', { text: 'Expert in two' }), el('p', { class: 'small muted', text: 'Pick two of your skills. You add double your proficiency bonus to them.' }));
+      out.push(el('div', { class: 'panel' }, ch.skills.length ? chipGroup('expertise', ch.skills.map(id => ({ id, label: sk(id).name })), k => ch.expertise.includes(k), k => {
+        if (ch.expertise.includes(k)) ch.expertise = ch.expertise.filter(x => x !== k); else if (ch.expertise.length < p.expertise) ch.expertise.push(k);
+      }) : el('p', { class: 'small muted', style: 'margin:0', text: 'Pick your skills above first.' })));
+    }
+    if (p.choice) {
+      out.push(el('h3', { text: p.choice.label }));
+      const w = el('div', { class: 'pick', role: 'radiogroup', 'aria-label': p.choice.label });
+      p.choice.options.forEach(o => w.append(el('button', { type: 'button', role: 'radio', 'aria-checked': ch.choice === o.id ? 'true' : 'false', class: 'opt' + (ch.choice === o.id ? ' on' : ''), onclick: () => { ch.choice = o.id; save(); render(); } }, el('div', { class: 't' }, el('span', { class: 'n', text: o.name })), el('div', { class: 'd', text: o.text }))));
+      out.push(w);
+    }
+    if (p.id === 'performer') {
+      out.push(el('h3', { text: 'Songs' }), el('p', { class: 'small muted', text: 'You always know Sour Note. Pick two more.' }));
+      const w = el('div', { class: 'pick' });
+      p.workings.list.filter(s => s.cost > 0 && s.level <= 1).forEach(s => w.append(el('button', {
+        type: 'button', 'aria-pressed': ch.songs.includes(s.id) ? 'true' : 'false', class: 'opt' + (ch.songs.includes(s.id) ? ' on' : ''),
+        onclick: () => { if (ch.songs.includes(s.id)) ch.songs = ch.songs.filter(x => x !== s.id); else if (ch.songs.length < 2) ch.songs.push(s.id); save(); render(); }
+      }, el('div', { class: 't' }, el('span', { class: 'n', text: s.name }), el('span', { class: 'b', text: `${s.cost} pt${s.cost > 1 ? 's' : ''}` })), el('div', { class: 'd', text: s.text }))));
+      out.push(w);
+    }
+    if (p.vow) out.push(el('h3', { text: 'Your vow' }), el('div', { class: 'panel' }, field('What promise does your character live by?', area('vow', ch.vow, v => (ch.vow = v), 'I will never leave anyone behind.'))));
+    return out;
+  };
+
+  views[5] = () => {
+    const p = pathOf();
+    const w = el('div', { class: 'pick', role: 'radiogroup', 'aria-label': 'Weapon' });
+    R.WEAPONS.forEach(x => w.append(el('button', { type: 'button', role: 'radio', 'aria-checked': ch.weapon.type === x.id ? 'true' : 'false', class: 'opt' + (ch.weapon.type === x.id ? ' on' : ''), onclick: () => { ch.weapon.type = x.id; save(); render(); } },
+      el('div', { class: 't' }, el('span', { class: 'n', text: x.name }), el('span', { class: 'b', text: `${x.damage} ${x.type}` })), el('div', { class: 'd', text: x.props.join(' · ') }))));
+    const out = [el('h2', { text: 'If it came to a fight' }), el('p', { class: 'muted', text: 'Pick the weapon you’d want in your hands.' }), w];
+    const wp = R.find(R.WEAPONS, ch.weapon.type);
+    if (p && p.shield && wp && !wp.twoHanded && !wp.noShield) {
+      out.push(el('div', { class: 'panel' }, el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Carry a shield? (+2 AC)' }), chipGroup('shield', [{ id: 'yes', label: 'Yes' }, { id: 'no', label: 'No' }], k => (k === 'yes') === (ch.weapon.shield !== false), k => { ch.weapon.shield = k === 'yes'; }))));
+    }
+    out.push(el('div', { class: 'panel' },
+      el('div', { class: 'field' },
+        el('div', { class: 'lbl', text: 'A small thing you always carry' }),
+        el('div', { class: 'hint', text: 'Something that fits in a pocket or a hand. Keep it on you.' }),
+        chipGroup('keepsake', R.KEEPSAKES, k => ch.weapon.keepsake === k, k => { ch.weapon.keepsake = ch.weapon.keepsake === k ? '' : k; }),
+        textInput('keepsakeCustom', R.KEEPSAKES.includes(ch.weapon.keepsake) ? '' : ch.weapon.keepsake, v => (ch.weapon.keepsake = v), { placeholder: 'Something else…', 'aria-label': 'Another small thing' })),
+      field('What would your weapon look like? (optional)', area('weaponLook', ch.weapon.look, v => (ch.weapon.look = v), 'A plain sabre with a cracked leather grip and a name scratched into the guard…'))));
+    return out;
+  };
+
+  views[6] = () => {
+    const A = ch.answers;
+    const out = [
+      el('h2', { text: 'Four questions' }),
+      el('p', { class: 'muted', text: 'Answer quickly. There are no wrong answers, and nobody else sees them.' }),
+      el('div', { class: 'panel' }, chipGroup('dmChoice', [{ id: 'answer', label: 'I’ll answer' }, { id: 'dm', label: 'Let the DM choose for me' }], k => (k === 'dm') === !!A.dm, k => { A.dm = k === 'dm'; }))
+    ];
+    if (A.dm) { out.push(el('p', { class: 'note', style: 'margin-top:14px', text: 'Your DM will decide. You can come back and answer them any time.' })); return out; }
+    R.QUESTIONS.forEach((q, qi) => {
+      const g = el('div', { class: 'pick answers', role: 'radiogroup', 'aria-label': q.text });
+      q.options.forEach(o => g.append(el('button', { type: 'button', role: 'radio', 'aria-checked': A[q.id] === o.id ? 'true' : 'false', class: 'opt' + (A[q.id] === o.id ? ' on' : ''), onclick: () => { A[q.id] = o.id; save(); render(); } }, el('span', { class: 'n', text: o.text }))));
+      out.push(el('div', { class: 'q' }, el('p', { class: 'qn' }, el('span', { text: ROMAN[qi] + '.' }), q.text), g));
+    });
+    return out;
+  };
+
+  const SKIN = ['#f6e1d3', '#f1d0b5', '#e8be9a', '#dda97e', '#c98e5f', '#b87a4b', '#a0653a', '#8a5530', '#6f4325', '#5a361e', '#45281a', '#2f1c13'];
+  const HAIR = ['#121212', '#2a2420', '#3b2a20', '#5a3c28', '#8b6542', '#7a3420', '#a9442a', '#c7834f', '#a88a5c', '#d8b978', '#e9e1cf', '#9c9c9c'];
+  const EYES = ['#3b2416', '#6b4423', '#8e7341', '#b07a2a', '#4f7d45', '#6f8c7a', '#4c7bb5', '#8fb3d9', '#8a9099', '#1b1b1b'];
+  const ftin = cm => { const inches = Math.round(cm / 2.54); return `${Math.floor(inches / 12)}′ ${inches % 12}″`; };
+
+  views[7] = () => {
+    const L = ch.look;
+    const h = el('input', { type: 'range', id: 'height', min: '120', max: '210', step: '1', value: L.heightCm });
+    const read = el('span', { class: 'height-read', text: `${ftin(L.heightCm)} · ${L.heightCm} cm` });
+    h.oninput = e => { L.heightCm = +e.target.value; read.textContent = `${ftin(L.heightCm)} · ${L.heightCm} cm`; save(); };
+    const refInput = el('input', { type: 'file', id: 'ref', accept: 'image/*' });
+    refInput.onchange = e => { const f = e.target.files[0]; if (f) shrink(f).then(url => { L.ref = url; save(); render(); }).catch(() => { $('#refMsg').textContent = 'That picture didn’t load. Try a JPG or PNG.'; }); };
+    const colors = el('div', { class: 'sw' });
+    L.outfitColors.forEach((c, i) => { const inp = el('input', { type: 'color', id: 'oc' + i, value: c, 'aria-label': `Outfit color ${i + 1}` }); inp.onchange = e => { L.outfitColors[i] = e.target.value; save(); render(); }; colors.append(inp); });
+    const fig = el('div', { class: 'fig' }); fig.innerHTML = figure(ch);
+    const chipOne = (id, list, key) => chipGroup(id, list, k => L[key] === k, k => { L[key] = L[key] === k ? '' : k; });
+    return [
+      el('h2', { text: 'What you look like' }),
+      el('p', { class: 'muted', text: 'Your DM builds your character for the big screen from this, so the more you give, the closer it gets to what you imagine.' }),
+      el('div', { class: 'panel' },
+        el('div', { class: 'preview', style: 'margin-bottom:14px' }, fig, el('p', { class: 'small muted', style: 'margin:0', text: 'A rough sketch from your choices. Your DM will do better.' })),
+        el('div', { class: 'field' }, el('label', { for: 'height', text: 'Height' }), h, read),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Build' }), chipOne('build', ['Petite', 'Slim', 'Wiry', 'Average', 'Athletic', 'Muscular', 'Broad', 'Stocky', 'Soft', 'Tall and lanky'], 'build')),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Skin tone' }), swatches('skin', SKIN, L.skin, c => (L.skin = c))),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Undertone' }), chipOne('undertone', ['Cool', 'Neutral', 'Warm', 'Olive'], 'undertone'))),
+      el('div', { class: 'panel' },
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Hair color' }), swatches('hair', HAIR, L.hairColor, c => (L.hairColor = c))),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Hair length' }), chipOne('hairLength', ['Shaved', 'Buzzed', 'Short', 'Chin-length', 'Shoulder-length', 'Long', 'Very long'], 'hairLength')),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Hair texture' }), chipOne('hairTexture', ['Straight', 'Wavy', 'Curly', 'Coily', 'Locs', 'Braids', 'Twists'], 'hairTexture')),
+        field('Hairstyle details', textInput('hairStyle', L.hairStyle, v => (L.hairStyle = v), { placeholder: 'Pinned up, parted in the middle, never tidy…' })),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Facial hair' }), chipOne('facialHair', ['None', 'Stubble', 'Mustache', 'Sideburns', 'Goatee', 'Beard'], 'facialHair'))),
+      el('div', { class: 'panel' },
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Eye color' }), swatches('eyes', EYES, L.eyeColor, c => (L.eyeColor = c))),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Glasses' }), chipGroup('glasses', [{ id: 'no', label: 'No' }, { id: 'yes', label: 'Yes' }], k => (k === 'yes') === !!L.glasses, k => { L.glasses = k === 'yes'; })),
+        field('Freckles, scars, tattoos, birthmarks', area('marks', L.marks, v => (L.marks = v), 'A scar through the left eyebrow, freckles everywhere…'))),
+      el('div', { class: 'panel' },
+        field('What you usually wear', area('outfit', L.outfit, v => (L.outfit = v), 'A long coat with too many pockets, a scarf someone knitted for me…')),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Colors you wear' }), colors, el('div', { class: 'hint', text: 'The first one is your main color.' })),
+        el('div', { class: 'row' },
+          field('Accessories', textInput('accessories', L.accessories, v => (L.accessories = v), { placeholder: 'A ribbon, a ring on a chain…' })),
+          field('Shoes', textInput('shoes', L.shoes, v => (L.shoes = v), { placeholder: 'Boots that need mending' })))),
+      el('div', { class: 'panel' },
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'How you move' }), chipGroup('movement', ['Bouncy', 'Confident', 'Careful', 'Restless', 'Graceful', 'Heavy-footed', 'Slouchy', 'Precise'], k => L.movement.includes(k), k => { L.movement = L.movement.includes(k) ? L.movement.filter(x => x !== k) : [...L.movement, k]; })),
+        field('How you sound', textInput('voice', L.voice, v => (L.voice = v), { placeholder: 'Low and slow, a faint accent, laughs too loud…' })),
+        field('Anything else the DM should picture', area('lookNotes', L.notes, v => (L.notes = v))),
+        el('div', { class: 'field' }, el('label', { for: 'ref', text: 'A reference picture (optional)' }),
+          el('div', { class: 'ref' }, L.ref ? el('img', { src: L.ref, alt: 'Your reference picture' }) : null, refInput),
+          el('div', { class: 'hint', id: 'refMsg', text: 'A drawing, a painting, an actor who looks the part. It travels in the saved file, not the code.' }),
+          L.ref ? el('div', {}, el('button', { type: 'button', class: 'btn ghost', onclick: () => { L.ref = null; save(); render(); } }, 'Remove picture')) : null))
+    ];
+  };
+
+  views[8] = () => {
+    const S = ch.story;
+    return [
+      el('h2', { text: 'Your story' }),
+      el('p', { class: 'muted', text: 'Short answers are fine. Your DM reads every one, and nobody else does.' }),
+      el('div', { class: 'panel' },
+        field('Where are you from, and who raised you?', area('from', S.from, v => (S.from = v))),
+        field('What do you want more than anything?', area('want', S.want, v => (S.want = v))),
+        field('What are you most afraid of?', area('fear', S.fear, v => (S.fear = v))),
+        field('Who would you die for?', area('dieFor', S.dieFor, v => (S.dieFor = v))),
+        field('What is the worst thing you have ever done?', area('worst', S.worst, v => (S.worst = v))),
+        field('A secret only the DM knows', area('secret', S.secret, v => (S.secret = v))),
+        field('Anything else', area('extra', S.extra, v => (S.extra = v))))
+    ];
+  };
+
+  views[9] = () => {
+    const C = ch.comfort;
+    const state = t => (C.lines.includes(t) ? 'line' : C.veils.includes(t) ? 'veil' : '');
+    const g = el('div', { class: 'chips', id: 'topics', role: 'group', 'aria-label': 'Topics' });
+    R.COMFORT_TOPICS.forEach(t => {
+      const s = state(t);
+      g.append(el('button', {
+        type: 'button', class: 'chip' + (s ? ' ' + s : ''), 'aria-label': `${t}: ${s === 'line' ? 'never' : s === 'veil' ? 'off-screen only' : 'fine'}`,
+        onclick: () => {
+          if (s === '') C.veils.push(t);
+          else if (s === 'veil') { C.veils = C.veils.filter(x => x !== t); C.lines.push(t); }
+          else C.lines = C.lines.filter(x => x !== t);
+          save(); render();
+        }
+      }, t, s ? el('span', { class: 'tag', text: s === 'line' ? 'never' : 'off-screen' }) : null));
+    });
+    return [
+      el('h2', { text: 'Your limits' }),
+      el('p', { class: 'muted', text: 'Games can get intense. Tap anything you’d rather not meet at the table: once to keep it off-screen, twice to rule it out, three times to clear it. All optional.' }),
+      el('div', { class: 'panel' }, g),
+      el('div', { class: 'panel' },
+        field('Anything else you want the DM to steer around?', area('comfortNotes', C.notes, v => (C.notes = v))),
+        el('div', { class: 'field' }, el('div', { class: 'lbl', text: 'Who sees this' }),
+          chipGroup('anon', [{ id: 'anon', label: 'Without my name' }, { id: 'named', label: 'With my name' }], k => (k === 'anon') === (C.anonymous !== false), k => { C.anonymous = k === 'anon'; }),
+          el('div', { class: 'hint', text: 'Stagehand, the app your DM runs the game with, shows your DM these answers mixed in with everyone else’s. Without your name is the default.' })))
+    ];
+  };
+
+  views[10] = () => {
+    const out = [el('h2', { text: 'Seal it' })];
+    if (!allValid()) {
+      const missingSteps = Object.keys(REQUIRED).map(Number).filter(i => !stepValid(i));
+      out.push(el('p', { class: 'err', text: 'Almost there. Finish these first: ' + missingSteps.map(i => STEPS[i]).join(', ') + '.' }));
+      out.push(el('div', { class: 'row' }, ...missingSteps.map(i => el('button', { type: 'button', class: 'btn', onclick: () => go(i) }, `${ROMAN[i - 1]}. ${STEPS[i]}`))));
+      return out;
+    }
+    out.push(el('div', { class: 'sealrow' }, seal(ch, true), el('p', { class: 'muted', text: 'Everything you wrote, sealed into one line of text. Only your DM’s app can open it.' })));
+    out.push(el('div', { class: 'panel' }, card(ch, false)));
+    out.push(sendBox());
+    return out;
+  };
+
+  let dlPromise = null;
+  function getDownloads() {
+    if (!dlPromise) dlPromise = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+    return dlPromise;
+  }
+
+  function sendBox() {
+    const box = el('div', { class: 'panel' });
+    const ta = el('textarea', { class: 'code', id: 'code', readonly: true, 'aria-label': 'Your code' });
+    ta.value = 'Sealing…';
+    const status = el('div', { class: 'small', id: 'sendStatus', 'aria-live': 'polite' });
+    Code.encode(ch).then(code => { ta.value = code; });
+    const copy = el('button', { type: 'button', class: 'btn primary', id: 'copyBtn' }, 'Copy code');
+    copy.onclick = () => {
+      const code = ta.value;
+      const fallback = () => { ta.focus(); ta.select(); status.className = 'small muted'; status.textContent = 'Selected. Press and hold the code, then tap Copy.'; };
+      try { navigator.clipboard.writeText(code).then(() => { status.className = 'small ok'; status.textContent = 'Copied. Paste it into a message to your DM.'; }, fallback); }
+      catch (e) { fallback(); }
+    };
+    const file = el('button', { type: 'button', class: 'btn', id: 'fileBtn', hidden: true }, 'Save as a file');
+    file.onclick = async () => {
+      const dl = await getDownloads();
+      if (!dl) { status.className = 'small err'; status.textContent = 'Saving files doesn’t work here. Send the code instead.'; return; }
+      const safe = (ch.name || 'character').replace(/[^\w\- ]+/g, '').trim() || 'character';
+      try {
+        await dl.save({ filename: `${safe}.stagehand.json`, data: JSON.stringify(ch, null, 2) });
+        status.className = 'small ok'; status.textContent = 'Saved. Send the file to your DM; it includes your picture.';
+      } catch (e) {
+        const declined = e && e.code === 'declined';
+        status.className = 'small ' + (declined ? 'muted' : 'err');
+        status.textContent = declined ? 'Not saved.' : 'That didn’t save. Send the code instead.';
+      }
+    };
+    getDownloads().then(dl => { if (dl) file.hidden = false; });
+    [
+      el('p', { text: 'Copy this code and text it to your DM. That’s all: your DM pastes it into the game, and your character is waiting for you at the first session.' }),
+      ta,
+      el('div', { class: 'row', style: 'margin-top:10px' }, copy, file),
+      status,
+      ch.look.ref ? el('p', { class: 'small muted', style: 'margin:8px 0 0', text: 'Your reference picture is too big for the code. Save the file, or send the picture to your DM separately.' }) : null,
+      el('p', { class: 'small muted', style: 'margin:8px 0 0', text: 'Changed your mind about something? Edit it and send the new code.' })
+    ].forEach(n => n && box.append(n));
+    return box;
+  }
+
+  // ------------------------------------------------------------ sheet view
+  function sheetView() {
+    const d = R.derive(ch, null), p = d.path;
+    const out = [];
+    out.push(el('div', { class: 'sheet-head' },
+      el('div', {}, el('h2', { style: 'margin:8px 0 2px', text: ch.name }), el('div', { class: 'muted small', text: [ch.pronouns, ch.role, p.name, 'Level 1'].filter(Boolean).join(' · ') })),
+      el('button', { type: 'button', class: 'btn', onclick: () => { mode = 'build'; step = LAST; save(); render(); } }, 'Edit')));
+    out.push(el('div', { class: 'panel' }, el('div', { class: 'vitals' },
+      el('div', { class: 'vital' }, el('b', { text: d.hp }), el('span', { text: 'Hit points' })),
+      el('div', { class: 'vital' }, el('b', { text: d.ac }), el('span', { text: 'Armor class' })),
+      el('div', { class: 'vital' }, el('b', { text: sign(d.initiative) }), el('span', { text: 'Initiative' })),
+      el('div', { class: 'vital' }, el('b', { text: `${d.speed} ft` }), el('span', { text: 'Speed' })),
+      el('div', { class: 'vital' }, el('b', { text: sign(d.prof) }), el('span', { text: 'Proficiency' })),
+      el('div', { class: 'vital' }, el('b', { text: d.passivePerception }), el('span', { text: 'Passive perception' })))));
+    const w = d.weapon;
+    out.push(el('h3', { text: 'Weapon' }), el('div', { class: 'panel' },
+      el('div', { class: 'li' }, el('span', { class: 'k', text: w.name }), el('span', { class: 'v', text: `${sign(d.attack.bonus)} · ${d.attack.damage}` })),
+      el('div', { class: 'small muted', style: 'margin-top:6px', text: w.props.join(' · ') + (d.shield ? ' · Shield +2 AC' : '') }),
+      ch.weapon.keepsake ? el('div', { class: 'small', style: 'margin-top:6px', text: `Always on you: ${ch.weapon.keepsake.toLowerCase()}.` }) : null));
+    const grid = el('div', { class: 'abgrid' });
+    for (const a of R.ABILITIES) grid.append(el('div', { class: 'ab' }, el('div', { class: 's', text: a.short }), el('div', { class: 'm', text: sign(d.mods[a.id]) }), el('div', { class: 'v' }, `${d.scores[a.id]} · `, el('span', { class: 'sv' + (p.saves.includes(a.id) ? ' prof' : ''), title: p.saves.includes(a.id) ? 'Proficient save' : null, text: `save ${sign(d.saveMods[a.id])}` }))));
+    out.push(el('h3', { text: 'Abilities' }), el('div', { class: 'panel' }, grid));
+    const sl = el('div', {});
+    for (const s of R.SKILLS) sl.append(el('div', { class: 'li' + (ch.skills.includes(s.id) ? ' prof' : '') }, el('span', { class: 'k', text: `${s.name}${ch.expertise.includes(s.id) ? ' (expert)' : ''}` }), el('span', { class: 'v', text: sign(d.skillMods[s.id]) })));
+    out.push(el('h3', { text: 'Skills' }), el('div', { class: 'panel' }, sl));
+    const fl = el('div', {});
+    for (const f of p.features.filter(x => x.level <= 1)) {
+      let text = f.text;
+      if (f.name === 'Fighting Style' && ch.choice) { const o = p.choice.options.find(x => x.id === ch.choice); if (o) text = `${o.name}: ${o.text}`; }
+      if (f.name === 'Vow' && ch.vow) text = `“${ch.vow}” ${f.text}`;
+      const n = f.uses ? R.usesCount(f.uses, ch, d.scores) : 0;
+      fl.append(el('div', { class: 'feat' }, el('div', { class: 'h' }, el('b', { text: f.name }), el('span', { class: 'lv', text: n ? `${n} per ${f.per} rest` : (f.pool ? `${R.usesCount(f.pool, ch, d.scores)} HP per long rest` : '') })), el('p', { text })));
+    }
+    out.push(el('h3', { text: `${p.name} features` }), el('div', { class: 'panel' }, fl, el('p', { class: 'small muted', style: 'margin:10px 0 0', text: 'More arrive as you level up.' })));
+    if (p.workings) {
+      const wl = el('div', {});
+      const known = p.workings.all ? p.workings.list.filter(x => x.level <= 1) : p.workings.list.filter(x => x.cost === 0 || ch.songs.includes(x.id));
+      for (const x of known) wl.append(el('div', { class: 'feat' }, el('div', { class: 'h' }, el('b', { text: x.name }), el('span', { class: 'lv', text: x.cost ? `${x.cost} pt${x.cost > 1 ? 's' : ''}` : 'Free' })), el('p', { text: x.text })));
+      out.push(el('h3', { text: p.workings.label }), el('div', { class: 'panel' }, wl, el('p', { class: 'small muted', style: 'margin:10px 0 0', text: `${d.points.name}: ${d.points.max} per long rest · ${p.power.label} ${d.powerDC} · attack ${sign(d.powerAttack)}` })));
+    }
+    out.push(el('h3', { text: 'Your code' }), sendBox());
+    out.push(el('details', { class: 'more' }, el('summary', { text: 'Open a different code' }), restoreBox()));
+    return out;
+  }
+
+  function restoreBox() {
+    const ta = el('textarea', { id: 'restore', class: 'code', placeholder: 'Paste a code that starts with SH' });
+    const msg = el('div', { class: 'small', 'aria-live': 'polite' });
+    const btn = el('button', { type: 'button', class: 'btn', onclick: async () => {
+      try { ch = R.normalize(await Code.readAny(ta.value)); mode = 'sheet'; save(); render(); window.scrollTo({ top: 0 }); }
+      catch (e) { msg.className = 'small err'; msg.textContent = 'That code didn’t open. Check that you copied all of it.'; }
+    } }, 'Open this code');
+    return el('div', { class: 'panel' }, ta, el('div', { class: 'row', style: 'margin-top:8px' }, btn), msg);
+  }
+
+  function shrink(f) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 768, k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        resolve(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(f);
+    });
+  }
+
+  // ------------------------------------------------------------ render
+  function render() {
+    const app = $('#app');
+    app.innerHTML = '';
+    if (mode === 'sheet' && allValid()) sheetView().forEach(n => n && app.append(n));
+    else { mode = 'build'; (views[step] || views[0])().forEach(n => n && app.append(n)); }
+    renderSteps(); renderNav();
+  }
+  load();
+  render();
+})();
+</script>
+
+</body></html>
